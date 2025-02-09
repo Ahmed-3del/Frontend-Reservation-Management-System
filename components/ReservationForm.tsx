@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
@@ -16,12 +17,16 @@ import SearchDestination from "./SearchDestination";
 import GuestsRoomsPicker from "./GuestsRoomPicker";
 import { useRouter } from "next/navigation";
 import { AuthContext } from "@/context/AuthContext";
-import { stat } from "fs";
 import toast from "react-hot-toast";
 // import {CalendarComponent} from "@components/ui/calendar"
-export default function ReservationForm() {
+export default function ReservationForm(
+  {
+    setReservations,
+  }: {
+    setReservations: (reservations: any) => void;
+  }
+) {
   const { user } = useContext(AuthContext);
-  console.log(user, "user");
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
   const [guestsRooms, setGuestsRooms] = useState({
@@ -58,18 +63,15 @@ export default function ReservationForm() {
     }
   ) => {
     e.preventDefault();
-    // const checkIn = checkIn ? format(checkIn, "yyyy-MM-dd") : "";
-    // const checkOut = checkOut ? format(checkOut, "yyyy-MM-dd") : "";
     const roomType = guestsRooms.roomType;
     const guests = guestsRooms.guests;
     const hotel = selectedDestination.name;
-
-    async function postData(url = "", data = {}) {
+    async function postData(url = "") {
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          authorization: `Bearer ${localStorage.getItem("token")}`,
+          // authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           checkIn: format(checkIn, "yyyy-MM-dd"),
@@ -86,11 +88,10 @@ export default function ReservationForm() {
     postData(
       "https://679f90c424322f8329c40a52.mockapi.io/api/reservations"
     ).then((data) => {
-      console.log(data);
+      setReservations((prev: any) => [...prev,data]); 
       toast.success("Reservation Successful");
     });
   };
-  const session = localStorage.getItem("token");
   const router = useRouter();
   return (
     <div className="max-w-5xl mx-auto">
@@ -172,6 +173,7 @@ export default function ReservationForm() {
             <PopoverContent className="w-[320px] p-0">
               <GuestsRoomsPicker
                 onApply={setGuestsRooms}
+                
                 onClose={() => {
                   console.log("close");
                 }}
@@ -179,7 +181,7 @@ export default function ReservationForm() {
             </PopoverContent>
           </Popover>
         </div>
-        {session ? (
+        {user ? (
           <Button
             onClick={(e) =>
               onsubmit(e, {

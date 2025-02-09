@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useState, useMemo } from "react"
@@ -12,7 +13,6 @@ import { popularDestinations } from "@/lib/mock-data"
 interface SearchDestinationProps {
   onSelect: (destination: (typeof popularDestinations)[0]) => void
 }
-
 export default function SearchDestination({ onSelect }: SearchDestinationProps) {
   const [open, setOpen] = useState(false)
   const [selectedDestination, setSelectedDestination] = useState<(typeof popularDestinations)[0] | null>(null)

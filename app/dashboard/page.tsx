@@ -66,9 +66,6 @@ export default function ReservationsPage() {
     fetchReservations();
   }, []);
 
-  useEffect(() => {
-    applyFilters();
-  }, [reservations]);
 
   const fetchReservations = async () => {
     try {
@@ -83,37 +80,39 @@ export default function ReservationsPage() {
     }
   };
 
-  const applyFilters = () => {
-    let filtered = reservations;
-    if (statusFilter !== "All") {
-      filtered = filtered.filter(
-        (reservation) => reservation.status === statusFilter
-      );
-    }
-
-    if (dateRange.from && dateRange.to) {
-      filtered = filtered.filter((reservation) => {
+  useEffect(() => {
+    const filtered = reservations.filter((reservation) => {
+      // Filter by status
+      if (statusFilter !== "All" && reservation.status !== statusFilter) {
+        return false;
+      }
+  
+      // Filter by date range
+      if (dateRange.from && dateRange.to) {
         const checkIn = new Date(reservation.checkIn);
         const checkOut = new Date(reservation.checkOut);
-        return checkIn >= dateRange.from! && checkOut <= dateRange.to!;
-      });
-    }
-
-    if (hotelFilter) {
-      filtered = filtered.filter((reservation) =>
-        reservation.hotel.toLowerCase().includes(hotelFilter.toLowerCase())
-      );
-    }
-
-    if (userFilter) {
-      filtered = filtered.filter((reservation) =>
-        reservation.user.toLowerCase().includes(userFilter.toLowerCase())
-      );
-    }
-
+        if (checkIn < dateRange.from || checkOut > dateRange.to) {
+          return false;
+        }
+      }
+  
+      // Filter by hotel name
+      if (hotelFilter && !reservation.hotel.toLowerCase().includes(hotelFilter.toLowerCase())) {
+        return false;
+      }
+  
+      // Filter by user name
+      if (userFilter && !reservation.user.toLowerCase().includes(userFilter.toLowerCase())) {
+        return false;
+      }
+  
+      return true;
+    });
+  
     setFilteredReservations(filtered);
-  };
+  }, [reservations, statusFilter, dateRange, hotelFilter, userFilter]);
 
+  //  status change
   const handleStatusChange = async (
     reservationId: string,
     newStatus: string
@@ -254,6 +253,9 @@ export default function ReservationsPage() {
                   setHotelFilter={setHotelFilter}
                   userFilter={userFilter}
                   setUserFilter={setUserFilter}
+                  reservations={reservations}
+                  setFilteredReservations={setFilteredReservations}
+
                 />
               </div>
             </SheetContent>
@@ -270,12 +272,14 @@ export default function ReservationsPage() {
             setHotelFilter={setHotelFilter}
             userFilter={userFilter}
             setUserFilter={setUserFilter}
+            reservations={reservations}
+            setFilteredReservations={setFilteredReservations}
           />
         </div>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <ScrollArea className="h-[calc(100vh-12rem)]">
+        <ScrollArea className="h-[calc(90vh)]">
           <Table>
             <TableHeader>
               <TableRow>

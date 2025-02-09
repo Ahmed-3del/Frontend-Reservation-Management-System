@@ -1,37 +1,32 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-"use client";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
+"use client";
 import Image from "next/image";
 import { Wifi, Utensils, Dumbbell, SpadeIcon as Spa } from "lucide-react";
-// import { useRouter } from "next/navigation"
 import ReservationForm from "@/components/ReservationForm";
 import PartnerLogos from "@/components/Partners";
-import { useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import Footer from "@/components/modules/mainpage/footer";
 import Header from "@/components/modules/mainpage/header";
 
 export default function Home() {
-  const [session, setSession] = useState<string | null>(null);
-  // const router = useRouter()
   const [reservations, setReservations] = useState([]);
 
-  const fetchData = async () => {
-    const response = await fetch(
-      "https://679f90c424322f8329c40a52.mockapi.io/api/reservations"
-    );
-    const data = await response.json();
-    return data;
-  };
-
   useEffect(() => {
-    setSession(localStorage.getItem("token"));
-    fetchData().then((data) => setReservations(data));
-  }, [fetchData]);
-
+    const fetchData = async () => {
+      const response = await fetch(
+        "https://679f90c424322f8329c40a52.mockapi.io/api/reservations"
+      );
+      const data = await response.json();
+      setReservations(data);
+    };
+    fetchData();
+  }, []);
+        
+  // console.log(JSON.parse(session),"session");
   return (
     <div className="min-h-screen flex flex-col">
-      <Header session={session} reservationsCount={reservations.length} />
-
+      <Header reservationsCount={reservations.length} />
       {/* Hero Section */}
       <section className="relative flex-grow">
         <div className="absolute inset-0">
@@ -55,7 +50,7 @@ export default function Home() {
             </p>
 
             <div className="bg-white/20 backdrop-blur-lg rounded-xl p-6 md:p-8 shadow-lg">
-              <ReservationForm />
+              <ReservationForm setReservations={setReservations} />
             </div>
           </div>
         </div>

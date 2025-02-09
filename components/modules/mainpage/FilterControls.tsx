@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { format } from "date-fns"
 import { CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -15,7 +16,9 @@ interface FilterControlsProps {
   hotelFilter: string
   setHotelFilter: (value: string) => void
   userFilter: string
-  setUserFilter: (value: string) => void
+  setUserFilter: (value: string) => void  
+  reservations: any
+  setFilteredReservations: (value: any) => void
 }
 
 export function FilterControls({
@@ -27,7 +30,12 @@ export function FilterControls({
   setHotelFilter,
   userFilter,
   setUserFilter,
+  // reservations,
+  // setFilteredReservations 
 }: FilterControlsProps) {
+
+
+    
   return (
     <div className=" flex flex-row items-center justify-center space-x-4" >
       <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -36,7 +44,7 @@ export function FilterControls({
         </SelectTrigger>
         <SelectContent>
           <SelectItem value="All">All</SelectItem>
-          <SelectItem value="Pending">Pending</SelectItem>
+          <SelectItem value="pending">Pending</SelectItem>
           <SelectItem value="Approved">Approved</SelectItem>
           <SelectItem value="Cancelled">Cancelled</SelectItem>
         </SelectContent>

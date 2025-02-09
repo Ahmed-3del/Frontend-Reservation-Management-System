@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useMemo } from "react"
 import type { Reservation } from "../lib/mock-data"
 import { Input } from "@/components/ui/input"
 import { Select, SelectValue, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select"
@@ -8,37 +8,38 @@ import { CalendarIcon, FilterIcon, SearchIcon } from "lucide-react"
 import ReservationCard from "./reservationCard"
 import { ReservationModal } from "./reservationModal"
 
-
 export function ReservationsList() {
   const [reservations, setReservations] = useState<Reservation[]>([])
-  const [filteredReservations, setFilteredReservations] = useState<Reservation[]>([])
   const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("All")
 
-  const fetchData = useCallback(async () => {
-    const response = await fetch("https://679f90c424322f8329c40a52.mockapi.io/api/reservations")
-    const data = await response.json()
-    return data
-  }, [])
-
   useEffect(() => {
-    fetchData().then((data) => {
-      setReservations(data)
-      setFilteredReservations(data)
-    })
-  }, [fetchData])
+    const fetchData = async () => {
+      try {
+        const response = await fetch("https://679f90c424322f8329c40a52.mockapi.io/api/reservations");
+        if (!response.ok) {
+          throw new Error("Failed to fetch reservations");
+        }
+        const data = await response.json();
+        setReservations(data);
+      } catch (error) {
+        console.error("Error fetching reservations:", error);
+      }
+    };
+    fetchData();
+  }, []);
 
-  useEffect(() => {
-    const filtered = reservations.filter((reservation) => {
-      const matchesSearch =
-        reservation.hotel.toLowerCase().includes(searchTerm.toLowerCase()) 
-      const matchesStatus = statusFilter === "All" || reservation.status === statusFilter
-      return matchesSearch && matchesStatus
-    })
-    setFilteredReservations(filtered)
-  }, [searchTerm, statusFilter, reservations])
- console.log(reservations,"reservationsss")
+
+
+  const filteredReservations = useMemo(() => {
+    return reservations.filter((reservation) => {
+      const matchesSearch = reservation.hotel.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "All" || reservation.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [searchTerm, statusFilter, reservations]);
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-8">Your Reservations</h1>
@@ -60,7 +61,7 @@ export function ReservationsList() {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All">All Statuses</SelectItem>
+              <SelectItem value="All">All Status</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="Approved">Approved</SelectItem>
               <SelectItem value="Cancelled">Cancelled</SelectItem>

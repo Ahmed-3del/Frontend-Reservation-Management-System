@@ -1,15 +1,18 @@
+"use client";
 import { Book, Menu } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useRouter } from "next/navigation"
+import { AuthContext } from "@/context/AuthContext"
+import { useContext } from "react"
 
 interface HeaderProps {
-    session: string | null
     reservationsCount: number
 }
 
-export default function Header({ session, reservationsCount }: HeaderProps) {
+export default function Header({ reservationsCount }: HeaderProps) {
+    const { user } = useContext(AuthContext);
     const router = useRouter()
-
+console.log(user,"sds")
     return (
         <header className="sticky top-0 border-b z-20 bg-white/80 backdrop-blur-sm">
             <div className="container mx-auto px-4 h-16 flex items-center justify-between">
@@ -20,8 +23,21 @@ export default function Header({ session, reservationsCount }: HeaderProps) {
 
 
                 <div className="flex items-center gap-2 sm:gap-4">
-                    {session ? (
+                    {user ? (
                         <>
+                            {user.role === "admin" ? (
+                                <Button
+                                    onClick={() => router.push("/dashboard")}
+                                    variant="outline"
+                                    size="sm"
+                                    className="relative bg-gray-100 hover:bg-gray-200 text-black"
+                                >
+                                    <Book className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                                    <span className="hidden sm:inline">Admin panel</span>
+                                    <span className="sm:hidden">Admin panel</span>
+                                </Button>
+                            ) : null
+                            }
                             <Button
                                 onClick={() => router.push("/reservations")}
                                 variant="outline"
